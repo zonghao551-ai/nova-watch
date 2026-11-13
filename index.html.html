@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MUSCLE MONSTER 肌肉怪獸 | 次世代運動營養</title>
+  <!-- 載入 Google Fonts：現代幾何無襯線體 + 繁體黑體，營造科技與力量感 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. CSS 變數與全域設定 (方便學生一鍵修改全站配色與字體)
+       ========================================================================== */
+    :root {
+      --bg-dark: #090a0f;          /* 深邃黑曜石背景 */
+      --bg-light: #f4f5f7;         /* 淺灰銀白背景 (用來做黑白畫面節奏切換) */
+      --accent: #00f0ff;           /* 能量電光藍 (強調色) */
+      --accent-warm: #ff4d00;      /* 爆發熔岩橘 (輔助能量色) */
+      --text-white: #ffffff;
+      --text-dark: #171a20;
+      --btn-dark-bg: rgba(23, 26, 32, 0.85);
+      --btn-light-bg: rgba(244, 244, 244, 0.65);
+      --font-main: 'Montserrat', 'Noto Sans TC', -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* 【核心技巧 1：全螢幕一屏一屏切換】
+       在 html 標籤設定 scroll-snap-type，讓垂直捲動時自動吸附到每個 section 的頂端 */
+    html {
+      scroll-behavior: smooth;
+      scroll-snap-type: y mandatory; /* y 軸強制吸附 */
+      font-family: var(--font-main);
+      overflow-x: hidden; /* 防止手機版出現橫向捲軸 */
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-white);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==========================================================================
+       2. 懸浮透明導覽列 (Header & Nav)
+       ========================================================================== */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 1000;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    /* 品牌文字 Logo：使用寬字距與粗體建立旗艦識別度 */
+    .brand-logo {
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: 0.15em;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* 中央選單：極簡風格，hover 時出現半透明圓角底色 */
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: inherit;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 6px;
+      transition: background-color 0.25s ease;
+    }
+
+    .nav-links a:hover {
+      background-color: rgba(128, 128, 128, 0.22);
+      backdrop-filter: blur(8px); /* 毛玻璃質感 */
+    }
+
+    /* 手機版漢堡選單按鈕 (桌面版預設隱藏) */
+    .menu-toggle {
+      display: none;
+      background: rgba(128, 128, 128, 0.2);
+      backdrop-filter: blur(8px);
+      border: none;
+      color: inherit;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* 當畫面捲動到「淺色背景區塊」時，透過 JS 幫 header 加上這個 class 讓文字變深色 */
+    header.dark-text {
+      color: var(--text-dark);
+    }
+
+    /* ==========================================================================
+       3. 全螢幕沉浸式區塊 (Full-Screen Snap Sections)
+       ========================================================================== */
+    section.panel {
+      height: 100vh;
+      height: 100svh; /* 支援手機瀏覽器動態網址列高度 */
+      width: 100%;
+      scroll-snap-align: start; /* 捲動停止時，區塊頂端對齊視窗頂端 */
+      scroll-snap-stop: always; /* 確保快速滑動時不會一次跳過好幾屏 */
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15vh 24px 8vh; /* 上方留白 15vh，讓主標題落在視覺上方 1/4 處 */
+      overflow: hidden;
+      text-align: center;
+    }
+
+    /* 淺色主題區塊設定 (用來打破全黑單調感，創造呼吸節奏) */
+    section.panel.light-theme {
+      color: var(--text-dark);
+    }
+
+    /* 標題群組：置中對齊、強烈的字級層次 */
+    .hero-header {
+      position: relative;
+      z-index: 2;
+      max-width: 720px;
+    }
+
+    .eyebrow {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .light-theme .eyebrow {
+      color: #0066cc;
+    }
+
+    h1, h2 {
+      font-size: clamp(2.2rem, 5vw, 3.6rem); /* 響應式字體：隨螢幕寬度自動縮放 */
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+      font-weight: 400;
+      opacity: 0.85;
+      line-height: 1.6;
+    }
+
+    /* ==========================================================================
+       4. 底部雙膠囊按鈕組 (Tesla 招牌 CTA 設計)
+       ========================================================================== */
+    .cta-group {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      max-width: 560px;
+      justify-content: center;
+    }
+
+    .btn-pill {
+      flex: 1;
+      max-width: 260px;
+      padding: 12px 24px;
+      border-radius: 999px; /* 膠囊圓角 */
+      font-size: 0.92rem;
+      font-weight: 700;
+      text-decoration: none;
+      text-align: center;
+      letter-spacing: 0.04em;
+      transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-pill:hover {
+      transform: translateY(-2px);
+    }
+
+    /* 主要按鈕：實心高對比 */
+    .btn-primary {
+      background-color: var(--text-white);
+      color: var(--text-dark);
+    }
+
+    .light-theme .btn-primary {
+      background-color: var(--btn-dark-bg);
+      color: var(--text-white);
+    }
+
+    /* 次要按鈕：半透明毛玻璃 */
+    .btn-secondary {
+      background-color: rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(12px);
+      color: var(--text-white);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .light-theme .btn-secondary {
+      background-color: var(--btn-light-bg);
+      color: var(--text-dark);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    /* ==========================================================================
+       5. 純 CSS 光影背景與原創 SVG 產品視覺 (替代實體照片)
+       ========================================================================== */
+    .visual-stage {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      pointer-events: none; /* 讓滑鼠點擊可以穿透視覺層，不會擋到按鈕 */
+    }
+
+    /* 第一屏背景：深空聚光燈 */
+    #hero {
+      background: radial-gradient(circle at 50% 55%, #162838 0%, #090a0f 68%);
+    }
+
+    /* 第二屏背景：純淨冷白實驗室光感 */
+    #purity {
+      background: radial-gradient(circle at 50% 50%, #ffffff 0%, #e4e8ee 75%);
+    }
+
+    /* 第三屏背景：熔岩能量光暈 */
+    #flavor {
+      background: radial-gradient(circle at 50% 55%, #3b170b 0%, #0b090a 70%);
+    }
+
+    /* 第四屏背景：極致暗黑規格室 */
+    #specs {
+      background: linear-gradient(180deg, #090a0f 0%, #12151e 100%);
+    }
+
+    /* SVG 產品立體陰影與微浮動效果 */
+    .product-svg {
+      width: min(75vw, 380px);
+      height: auto;
+      filter: drop-shadow(0 28px 45px rgba(0, 0, 0, 0.65));
+      margin-top: 4vh;
+    }
+
+    .light-theme .product-svg {
+      filter: drop-shadow(0 24px 36px rgba(15, 23, 42, 0.16));
+    }
+
+    /* 數據統計列 (放在第四屏中間，展示核心營養指標) */
+    .specs-grid {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      width: 100%;
+      max-width: 760px;
+      margin: auto 0;
+    }
+
+    .spec-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 28px 16px;
+      border-radius: 20px;
+    }
+
+    .spec-num {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 800;
+      color: var(--accent);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .spec-label {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    /* ==========================================================================
+       6. 捲動進場動畫 & 無障礙設定 (prefers-reduced-motion)
+       ========================================================================== */
+    @media (prefers-reduced-motion: no-preference) {
+      .reveal {
+        opacity: 0;
+        transform: translateY(28px);
+        transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+                    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .reveal.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* 讓副標與按鈕稍微延遲進場，創造層次節奏 */
+      .delay-1 { transition-delay: 0.12s; }
+      .delay-2 { transition-delay: 0.24s; }
+
+      /* 產品微微懸浮動畫 */
+      @keyframes floatSlow {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+      }
+      .floating {
+        animation: floatSlow 5s ease-in-out infinite;
+      }
+    }
+
+    /* ==========================================================================
+       7. 頁尾 (Footer) - 放在最後一屏底部，不破壞全螢幕切換結構
+       ========================================================================== */
+    footer {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      font-size: 0.78rem;
+      opacity: 0.65;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .footer-links a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* ==========================================================================
+       8. 手機版響應式設計 (375px 寬度測試無橫向捲軸)
+       ========================================================================== */
+    @media (max-width: 768px) {
+      header {
+        padding: 0 20px;
+      }
+
+      /* 手機版隱藏桌面橫排選單，改用全螢幕抽屜選單 */
+      .nav-links {
+        position: fixed;
+        inset: 0;
+        background: rgba(9, 10, 15, 0.96);
+        backdrop-filter: blur(16px);
+        color: var(--text-white);
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 24px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+
+      .nav-links.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .nav-links a {
+        font-size: 1.35rem;
+      }
+
+      .menu-toggle {
+        display: block;
+        z-index: 1001;
+      }
+
+      section.panel {
+        padding: 13vh 20px 6vh;
+      }
+
+      /* 手機版膠囊按鈕改為上下堆疊，確保手指好點擊 */
+      .cta-group {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .btn-pill {
+        width: 100%;
+        max-width: 320px;
+      }
+
+      .specs-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .spec-item {
+        padding: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .spec-num {
+        font-size: 1.8rem;
+        margin-bottom: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       導覽列區塊：固定在頂端，隨背景明暗自動切換文字顏色
+       ======================================================================== -->
+  <header id="navbar">
+    <a href="#hero" class="brand-logo" aria-label="肌肉怪獸首頁">
+      <!-- 原創幾何怪獸爪痕 SVG Logo -->
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M4 4L9 20M12 2L12 22M20 4L15 20" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+      </svg>
+      MUSCLE MONSTER
+    </a>
+
+    <nav aria-label="主導覽選單">
+      <ul class="nav-links" id="navMenu">
+        <li><a href="#hero">WHEY CORE 01</a></li>
+        <li><a href="#purity">微米分離技術</a></li>
+        <li><a href="#flavor">極致風味</a></li>
+        <li><a href="#specs">營養數據</a></li>
+      </ul>
+    </nav>
+
+    <button class="menu-toggle" id="menuBtn" aria-expanded="false" aria-controls="navMenu">
+      選單
+    </button>
+  </header>
+
+  <main>
+    <!-- ======================================================================
+         第一屏 (Hero)：主打旗艦產品，標題置於上方 1/4，底部配置雙膠囊按鈕
+         ====================================================================== -->
+    <section id="hero" class="panel" data-theme="dark">
+      <div class="hero-header">
+        <span class="eyebrow reveal">FLAGSHIP SERIES // 2026</span>
+        <h1 class="reveal delay-1">WHEY CORE 01</h1>
+        <p class="subtitle reveal delay-2">專為突破極限打造。每一匙釋放 30g 純淨分離乳清能量。</p>
+      </div>
+
+      <!-- 原創 SVG 視覺：次世代科技蛋白粉罐剪影與光環 -->
+      <div class="visual-stage" aria-hidden="true">
+        <svg class="product-svg floating" viewBox="0 0 400 420" fill="none">
+          <defs>
+            <linearGradient id="canBody" x1="80" y1="90" x2="320" y2="360" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#2a3140"/>
+              <stop offset="50%" stop-color="#141820"/>
+              <stop offset="100%" stop-color="#090b10"/>
+            </linearGradient>
+            <linearGradient id="neonRim" x1="100" y1="80" x2="300" y2="80" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.1"/>
+              <stop offset="50%" stop-color="#00f0ff" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="#00f0ff" stop-opacity="0.1"/>
+            </linearGradient>
+          </defs>
+          <!-- 背景能量光圈 -->
+          <circle cx="200" cy="220" r="145" stroke="url(#neonRim)" stroke-width="1.5" stroke-dasharray="6 6"/>
+          <!-- 罐身主體 -->
+          <rect x="105" y="105" width="190" height="245" rx="28" fill="url(#canBody)" stroke="#384254" stroke-width="2"/>
+          <!-- 罐蓋 -->
+          <rect x="120" y="72" width="160" height="33" rx="10" fill="#1e2430" stroke="#475569" stroke-width="1.5"/>
+          <!-- 罐身發光能量條 -->
+          <rect x="105" y="135" width="190" height="4" fill="url(#neonRim)"/>
+          <!-- 罐身品牌幾何標誌 -->
+          <path d="M170 185L185 245M200 175L200 255M230 185L215 245" stroke="#00f0ff" stroke-width="6" stroke-linecap="round"/>
+          <text x="200" y="290" fill="#ffffff" font-family="Montserrat, sans-serif" font-weight="800" font-size="16" letter-spacing="4" text-anchor="middle">CORE 01</text>
+          <text x="200" y="312" fill="#94a3b8" font-family="Montserrat, sans-serif" font-weight="600" font-size="10" letter-spacing="3" text-anchor="middle">ISOLATE PROTEIN</text>
+        </svg>
+      </div>
+
+      <div class="cta-group reveal delay-2">
+        <a href="#specs" class="btn-pill btn-primary">立即訂購</a>
+        <a href="#purity" class="btn-pill btn-secondary">探索分子科技</a>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         第二屏 (淺色主題切換)：製造強烈的黑白畫面反差，強調純淨度
+         ====================================================================== -->
+    <section id="purity" class="panel light-theme" data-theme="light">
+      <div class="hero-header">
+        <span class="eyebrow reveal">MICRO-FILTRATION</span>
+        <h2 class="reveal delay-1">零乳糖負擔，極速吸收</h2>
+        <p class="subtitle reveal delay-2">低溫交叉流微過濾技術，保留完整支鏈胺基酸，3 秒瞬間溶解不結塊。</p>
+      </div>
+
+      <!-- 原創 SVG 視覺：純淨蛋白質分子晶格 -->
+      <div class="visual-stage" aria-hidden="true">
+        <svg class="product-svg floating" viewBox="0 0 400 400" fill="none">
+          <circle cx="200" cy="210" r="110" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+          <circle cx="200" cy="210" r="72" stroke="#0066cc" stroke-width="2" stroke-dasharray="10 6"/>
+          <!-- 分子連線與節點 -->
+          <line x1="200" y1="120" x2="278" y2="165" stroke="#94a3b8" stroke-width="2"/>
+          <line x1="278" y1="165" x2="278" y2="255" stroke="#94a3b8" stroke-width="2"/>
+          <line x1="278" y1="255" x2="200" y2="300" stroke="#94a3b8" stroke-width="2"/>
+          <line x1="200" y1="300" x2="122" y2="255" stroke="#94a3b8" stroke-width="2"/>
+          <line x1="122" y1="255" x2="122" y2="165" stroke="#94a3b8" stroke-width="2"/>
+          <line x1="122" y1="165" x2="200" y2="120" stroke="#94a3b8" stroke-width="2"/>
+          <circle cx="200" cy="210" r="24" fill="#0066cc"/>
+          <circle cx="200" cy="120" r="10" fill="#171a20"/>
+          <circle cx="278" cy="165" r="10" fill="#0066cc"/>
+          <circle cx="278" cy="255" r="10" fill="#171a20"/>
+          <circle cx="200" cy="300" r="10" fill="#0066cc"/>
+          <circle cx="122" cy="255" r="10" fill="#171a20"/>
+          <circle cx="122" cy="165" r="10" fill="#0066cc"/>
+        </svg>
+      </div>
+
+      <div class="cta-group reveal delay-2">
+        <a href="#specs" class="btn-pill btn-primary">查看檢驗報告</a>
+        <a href="#flavor" class="btn-pill btn-secondary">瀏覽全系列口味</a>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         第三屏 (深色能量主題)：聚焦感官與風味體驗
+         ====================================================================== -->
+    <section id="flavor" class="panel" data-theme="dark">
+      <div class="hero-header">
+        <span class="eyebrow reveal" style="color: var(--accent-warm);">SENSORY LAB</span>
+        <h2 class="reveal delay-1">告別代糖化學味</h2>
+        <p class="subtitle reveal delay-2">嚴選西非可可豆與宇治抹茶原葉研磨，讓每一次訓練後的補給成為頂級享受。</p>
+      </div>
+
+      <!-- 原創 SVG 視覺：能量波紋與可可金字塔 -->
+      <div class="visual-stage" aria-hidden="true">
+        <svg class="product-svg floating" viewBox="0 0 400 400" fill="none">
+          <defs>
+            <linearGradient id="lavaGrad" x1="120" y1="120" x2="280" y2="300" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#ff6b00"/>
+              <stop offset="100%" stop-color="#991b1b"/>
+            </linearGradient>
+          </defs>
+          <ellipse cx="200" cy="270" rx="135" ry="32" stroke="#ff4d00" stroke-opacity="0.4" stroke-width="2"/>
+          <ellipse cx="200" cy="270" rx="95" ry="20" stroke="#ff4d00" stroke-opacity="0.7" stroke-width="2"/>
+          <polygon points="200,115 290,265 110,265" fill="url(#lavaGrad)" opacity="0.9"/>
+          <polygon points="200,115 290,265 200,265" fill="#ffffff" opacity="0.12"/>
+        </svg>
+      </div>
+
+      <div class="cta-group reveal delay-2">
+        <a href="#specs" class="btn-pill btn-primary">訂購隨身體驗組</a>
+        <a href="#specs" class="btn-pill btn-secondary">了解成分表</a>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         第四屏 (數據與最終號召 + 頁尾)：用硬派數字收尾並附上免責聲明
+         ====================================================================== -->
+    <section id="specs" class="panel" data-theme="dark">
+      <div class="hero-header">
+        <span class="eyebrow reveal">PURE PERFORMANCE</span>
+        <h2 class="reveal delay-1">為強者而生的黃金比例</h2>
+        <p class="subtitle reveal delay-2">無添加人工色素、無增稠劑，每一份都經得起最嚴苛的檢視。</p>
+      </div>
+
+      <!-- 核心營養規格卡片 -->
+      <div class="specs-grid reveal delay-1">
+        <div class="spec-item">
+          <span class="spec-num">30g</span>
+          <span class="spec-label">高純度分離乳清蛋白</span>
+        </div>
+        <div class="spec-item">
+          <span class="spec-num">6.8g</span>
+          <span class="spec-label">天然支鏈胺基酸 BCAA</span>
+        </div>
+        <div class="spec-item">
+          <span class="spec-num">0.5g</span>
+          <span class="spec-label">極低糖分與脂肪含量</span>
+        </div>
+      </div>
+
+      <div class="cta-group reveal delay-2">
+        <a href="#hero" class="btn-pill btn-primary">立即選購 2.2kg 旗艦罐</a>
+        <a href="#hero" class="btn-pill btn-secondary">訂閱制享 85 折</a>
+      </div>
+
+      <!-- 頁尾：遵守教學規範，標註課堂練習作品與虛構品牌 -->
+      <footer>
+        <div class="footer-links">
+          <a href="#hero">MUSCLE MONSTER © 2026</a>
+          <a href="#purity">品質承諾</a>
+          <a href="#specs">營養標示</a>
+        </div>
+        <p>本網站為課堂練習作品，品牌與產品皆為虛構。</p>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    /* ========================================================================
+       1. 捲動進場動畫 (使用 IntersectionObserver 監測元素是否進入畫面)
+       ======================================================================== */
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('show');
+        }
+      });
+    }, { threshold: 0.2 }); // 當區塊進入視窗 20% 時觸發動畫
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    /* ========================================================================
+       2. 智慧導覽列變色 (偵測目前畫面是深色或淺色主題，自動切換導覽列文字色)
+       ======================================================================== */
+    const navbar = document.getElementById('navbar');
+    const themeObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        // 當某個區塊佔據畫面超過一半 (0.55) 時，讀取它的 data-theme 屬性
+        if (entry.isIntersecting) {
+          const isLight = entry.target.dataset.theme === 'light';
+          navbar.classList.toggle('dark-text', isLight);
+        }
+      });
+    }, { threshold: 0.55 });
+
+    document.querySelectorAll('section.panel').forEach(sec => themeObserver.observe(sec));
+
+    /* ========================================================================
+       3. 手機版漢堡選單開關
+       ======================================================================== */
+    const menuBtn = document.getElementById('menuBtn');
+    const navMenu = document.getElementById('navMenu');
+
+    menuBtn.addEventListener('click', () => {
+      const isOpen = navMenu.classList.toggle('open');
+      menuBtn.textContent = isOpen ? '關閉' : '選單';
+      menuBtn.setAttribute('aria-expanded', isOpen);
+    });
+
+    // 點擊手機版選單連結後自動收起選單
+    navMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navMenu.classList.remove('open');
+        menuBtn.textContent = '選單';
+        menuBtn.setAttribute('aria-expanded', 'false');
+      });
+    });
+  </script>
+</body>
+</html>
